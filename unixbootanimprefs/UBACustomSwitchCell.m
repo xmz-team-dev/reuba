@@ -173,6 +173,7 @@ static NSString * const kDefaultEnabledIcon = @"enabled_icon";
 - (UIImage *)imageForDisabled {
     UIImage *img = [self bundleImageNamed:self.disabledIconName];
     if (img) return img;
+    // 如果没找到，生成占位图
     if (@available(iOS 13.0, *)) {
         return [UIImage systemImageNamed:@"iphone"];
     }
@@ -181,7 +182,8 @@ static NSString * const kDefaultEnabledIcon = @"enabled_icon";
 
 - (UIImage *)imageForEnabled {
     UIImage *img = [self bundleImageNamed:self.enabledIconName];
-    if (img) return img;
+    if (img) return img;    
+    // 如果没找到，生成占位图
     if (@available(iOS 13.0, *)) {
         return [UIImage systemImageNamed:@"iphone.radiowaves.left.and.right"];
     }
@@ -189,12 +191,19 @@ static NSString * const kDefaultEnabledIcon = @"enabled_icon";
 }
 
 - (UIImage *)bundleImageNamed:(NSString *)name {
+    NSLog(@"[UBACustomSwitchCell] Attempting to load image: %@", name);
+    NSBundle *currentBundle = [NSBundle bundleForClass:self.class];
+    NSLog(@"[UBACustomSwitchCell] Current bundle path: %@", [currentBundle bundlePath]);
+    NSString *bundlePath = @"/var/jb/Library/PreferenceBundles/UnixBootAnimPrefs.bundle";
+    NSString *testPath = [bundlePath stringByAppendingPathComponent:[name stringByAppendingPathExtension:@"png"]];
+    NSLog(@"[UBACustomSwitchCell] Checking file at: %@, exists: %d", testPath, 
+          [[NSFileManager defaultManager] fileExistsAtPath:testPath]);
     // 方法1：优先从当前类所在的 bundle 加载
     NSBundle *bundle = [NSBundle bundleForClass:self.class];
     UIImage *image = [UIImage imageNamed:name inBundle:bundle compatibleWithTraitCollection:nil];
     if (image) return image;
     
-    // 方法2：从固定的 bundle 路径加载（您设备上的实际路径）
+    // 方法2：从固定的 bundle 路径加载
     NSArray *possiblePaths = @[
         @"/var/jb/Library/PreferenceBundles/UnixBootAnimPrefs.bundle",
         @"/Library/PreferenceBundles/UnixBootAnimPrefs.bundle"
