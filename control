@@ -1,0 +1,9 @@
+Package: unixbootanim
+Name: UnixBootAnim
+Version: 1.2.1
+Architecture: 
+Description: BootAnim,but like Unix
+Maintainer: LF
+Author: LF
+Section: System
+Depends: firmware (>= 15.0), preferenceloader, launchctl

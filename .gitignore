@@ -1,0 +1,17 @@
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.tfstate
+secrets/
+credentials.json
+*.secret
+.terraform/
+.theos/*
+package/*
+induce-code
+uba.AllCode.all.md
+layout/*
+unixbootanimprefs/bak/*
