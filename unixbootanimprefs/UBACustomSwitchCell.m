@@ -189,17 +189,23 @@ static NSString * const kDefaultEnabledIcon = @"enabled_icon";
 }
 
 - (UIImage *)bundleImageNamed:(NSString *)name {
-    UIImage *image = [UIImage imageNamed:name inBundle:[NSBundle bundleForClass:self.class] compatibleWithTraitCollection:nil];
-    if (!image) {
-        // 兜底：直接从文件系统加载
-        NSString *basePath = @"/var/jb/Library/PreferenceBundles/UnixBootAnimPrefs.bundle";
-        NSString *fullPath = [basePath stringByAppendingPathComponent:name];
-        if (![name.pathExtension isEqualToString:@"png"]) {
-            fullPath = [fullPath stringByAppendingPathExtension:@"png"];
-        }
-        image = [UIImage imageWithContentsOfFile:fullPath];
+    NSBundle *bundle = [NSBundle bundleForClass:self.class];
+    UIImage *image = [UIImage imageNamed:name inBundle:bundle compatibleWithTraitCollection:nil];
+    if (image) return image;
+    NSString *bundlePath = [NSString stringWithFormat:@"/var/jb/Library/PreferenceBundles/%@.bundle", 
+                            [[bundle bundlePath] lastPathComponent]];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:bundlePath]) {
+        bundlePath = @"/var/jb/Library/PreferenceBundles/UnixBootAnimPrefs.bundle";
     }
-    return image;
+    bundle = [NSBundle bundleWithPath:bundlePath];
+    image = [UIImage imageNamed:name inBundle:bundle compatibleWithTraitCollection:nil];
+    if (image) return image;
+    bundlePath = @"/var/jb/Library/PreferenceBundles/UnixBootAnimPrefs.bundle";
+    bundle = [NSBundle bundleWithPath:bundlePath];
+    image = [UIImage imageNamed:name inBundle:bundle compatibleWithTraitCollection:nil];
+    if (image) return image;
+    
+    return nil;
 }
 
 - (UIImage *)drawPlaceholderIconWithText:(NSString *)text {
