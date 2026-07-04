@@ -191,17 +191,15 @@ static NSString * const kDefaultEnabledIcon = @"enabled_icon";
 }
 
 - (UIImage *)bundleImageNamed:(NSString *)name {
-    NSString *bundlePath = @[
-	    @"/var/jb/Library/PreferenceBundles/UnixBootAnimPrefs.bundle",
-	    @"/Library/PreferenceBundles/UnixBootAnimPrefs.bundle"
-    ];
+    NSString *bundlePath = @"/var/jb/Library/PreferenceBundles/UnixBootAnimPrefs.bundle";
     NSString *filePath = [bundlePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.png", name]];
-    // 直接使用 imageWithContentsOfFile 加载
+    
     UIImage *image = [UIImage imageWithContentsOfFile:filePath];
     if (image) {
         NSLog(@"[UBACustomSwitchCell] Loaded: %@", name);
         return image;
-    }   
+    }
+    
     // 如果 .png 找不到，尝试其他扩展名
     NSArray *extensions = @[@"PNG", @"jpg", @"jpeg"];
     for (NSString *ext in extensions) {
@@ -213,7 +211,6 @@ static NSString * const kDefaultEnabledIcon = @"enabled_icon";
         }
     }
     
-    NSLog(@"[UBACustomSwitchCell] Failed to load: %@", name);
     return nil;
 }
 
