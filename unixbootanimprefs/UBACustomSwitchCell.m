@@ -191,46 +191,29 @@ static NSString * const kDefaultEnabledIcon = @"enabled_icon";
 }
 
 - (UIImage *)bundleImageNamed:(NSString *)name {
-    NSLog(@"[UBACustomSwitchCell] Attempting to load image: %@", name);
-    NSBundle *currentBundle = [NSBundle bundleForClass:self.class];
-    NSLog(@"[UBACustomSwitchCell] Current bundle path: %@", [currentBundle bundlePath]);
-    NSString *bundlePath = @"/var/jb/Library/PreferenceBundles/UnixBootAnimPrefs.bundle";
-    NSString *testPath = [bundlePath stringByAppendingPathComponent:[name stringByAppendingPathExtension:@"png"]];
-    NSLog(@"[UBACustomSwitchCell] Checking file at: %@, exists: %d", testPath, 
-          [[NSFileManager defaultManager] fileExistsAtPath:testPath]);
-    // 方法1：优先从当前类所在的 bundle 加载
-    NSBundle *bundle = [NSBundle bundleForClass:self.class];
-    UIImage *image = [UIImage imageNamed:name inBundle:bundle compatibleWithTraitCollection:nil];
-    if (image) return image;
-    
-    // 方法2：从固定的 bundle 路径加载
-    NSArray *possiblePaths = @[
-        @"/var/jb/Library/PreferenceBundles/UnixBootAnimPrefs.bundle",
-        @"/Library/PreferenceBundles/UnixBootAnimPrefs.bundle"
+    NSString *bundlePath = @[
+	    @"/var/jb/Library/PreferenceBundles/UnixBootAnimPrefs.bundle",
+	    @"/Library/PreferenceBundles/UnixBootAnimPrefs.bundle"
     ];
-    
-    for (NSString *path in possiblePaths) {
-        NSBundle *bundle = [NSBundle bundleWithPath:path];
-        if (bundle) {
-            image = [UIImage imageNamed:name inBundle:bundle compatibleWithTraitCollection:nil];
-            if (image) return image;
-        }
-    }
-    
-    // 方法3：直接通过文件路径加载（最可靠）
-    NSString *bundlePath = @"/var/jb/Library/PreferenceBundles/UnixBootAnimPrefs.bundle";
-    NSString *imagePath = [bundlePath stringByAppendingPathComponent:name];
-    
-    // 尝试各种扩展名
-    NSArray *extensions = @[@"png", @"PNG", @"jpg", @"jpeg"];
+    NSString *filePath = [bundlePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.png", name]];
+    // 直接使用 imageWithContentsOfFile 加载
+    UIImage *image = [UIImage imageWithContentsOfFile:filePath];
+    if (image) {
+        NSLog(@"[UBACustomSwitchCell] Loaded: %@", name);
+        return image;
+    }   
+    // 如果 .png 找不到，尝试其他扩展名
+    NSArray *extensions = @[@"PNG", @"jpg", @"jpeg"];
     for (NSString *ext in extensions) {
-        NSString *fullPath = [imagePath stringByAppendingPathExtension:ext];
-        if ([[NSFileManager defaultManager] fileExistsAtPath:fullPath]) {
-            image = [UIImage imageWithContentsOfFile:fullPath];
-            if (image) return image;
+        filePath = [bundlePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%@", name, ext]];
+        image = [UIImage imageWithContentsOfFile:filePath];
+        if (image) {
+            NSLog(@"[UBACustomSwitchCell] Loaded: %@.%@", name, ext);
+            return image;
         }
     }
     
+    NSLog(@"[UBACustomSwitchCell] Failed to load: %@", name);
     return nil;
 }
 
